@@ -1,4 +1,22 @@
-# ─── Команды ────────────────────────────────────────────────
+import logging
+import os
+from aiogram import Bot, Dispatcher, executor, types
+from dotenv import load_dotenv
+
+# ── Загружаем токен ────────────────────────────────────────
+load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("❌ Переменная окружения BOT_TOKEN не найдена.")
+
+# ── Настройка логов ────────────────────────────────────────
+logging.basicConfig(level=logging.INFO)
+
+# ── Создание экземпляров ───────────────────────────────────
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
+
+# ─── Команды ───────────────────────────────────────────────
 
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
@@ -31,3 +49,8 @@ async def cmd_sell(message: types.Message):
 @dp.message_handler(commands=["ai"])
 async def cmd_ai(message: types.Message):
     await message.reply("🤖 Умный режим включён. Бот будет анализировать рынок автоматически.")
+
+# ─── Точка входа ───────────────────────────────────────────
+if name == "main":
+    print("Запуск Telegram-бота...")
+    executor.start_polling(dp, skip_updates=True)
