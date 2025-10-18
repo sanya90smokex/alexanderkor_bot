@@ -51,6 +51,6 @@ async def cmd_ai(message: types.Message):
     await message.reply("🤖 Умный режим включён. Бот будет анализировать рынок автоматически.")
 
 # ─── Точка входа ───────────────────────────────────────────
-if name == "main":
+if __name__ == "__main__":
     print("Запуск Telegram-бота...")
     executor.start_polling(dp, skip_updates=True)
