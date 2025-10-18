@@ -49,6 +49,34 @@ async def cmd_sell(message: types.Message):
 @dp.message_handler(commands=["ai"])
 async def cmd_ai(message: types.Message):
     await message.reply("🤖 Умный режим включён. Бот будет анализировать рынок автоматически.")
+    # --- автостарт наблюдателя ---
+import asyncio
+
+async def auto_start_watch():
+    await asyncio.sleep(5)
+    from analyzer import scan_symbols
+    import os
+    symbols = os.getenv("WATCH_SYMBOLS", "BTCUSDT,ETHUSDT").split(",")
+    config = {
+        "symbols": symbols,
+        "timeframe": os.getenv("WATCH_TIMEFRAME", "1m"),
+        "ret_spike": float(os.getenv("WATCH_RET_SPIKE", 0.007)),
+        "atr_mult": float(os.getenv("WATCH_ATR_MULT", 1.8)),
+        "vol_mult": float(os.getenv("WATCH_VOL_MULT", 2.0)),
+        "use_futures": True,
+        "api_key": os.getenv("BINANCE_API_KEY", ""),
+        "api_secret": os.getenv("BINANCE_API_SECRET", ""),
+    }
+
+    while True:
+        try:
+            alerts = scan_symbols(config)
+            if alerts:
+                for a in alerts:
+                    await bot.send_message(os.getenv("ADMIN_CHAT_ID"), a)
+        except Exception as e:
+            print("Ошибка наблюдателя:", e)
+        await asyncio.sleep(int(os.getenv("WATCH_INTERVAL_SEC", "30")))
 
 # ─── Точка входа ───────────────────────────────────────────
 if __name__ == "__main__":
