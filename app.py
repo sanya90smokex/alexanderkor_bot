@@ -1,31 +1,33 @@
-
-import os, asyncio
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message
-from aiogram.filters import Command
+rom aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
+import asyncio, os
 from dotenv import load_dotenv
 
-# Load .env variables
 load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("BOT_TOKEN")
 
-if not BOT_TOKEN:
-    raise SystemExit("BOT_TOKEN missing. Put it in .env or Render env vars.")
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
 
-bot = Bot(BOT_TOKEN)
-dp = Dispatcher()
+@dp.message_handler(commands=["start"])
+async def start(msg: types.Message):
+    await msg.answer("🤖 Бот запущен!\n\nДоступные команды:\n/start – запустить бота\n/ping – проверка связи\n/signal – получить торговый сигнал")
 
-@dp.message(Command("start"))
-async def start(m: Message):
-    await m.answer("✅ Бот запущен. Команды: /start, /ping")
+@dp.message_handler(commands=["ping"])
+async def ping(msg: types.Message):
+    await msg.answer("✅ Pong!")
 
-@dp.message(Command("ping"))
-async def ping(m: Message):
-    await m.answer("pong")
+@dp.message_handler(commands=["signal"])
+async def signal(msg: types.Message):
+    # Пример фейкового сигнала — позже подключим реальную аналитику
+    await msg.answer(
+        "💡 Торговый сигнал:\n\n"
+        "🪙 Пара: BTC/USDT\n"
+        "📈 Тренд: Восходящий\n"
+        "🎯 Цель: $65,200\n"
+        "🛡 Поддержка: $62,700\n"
+        "⚙️ RSI: 38 — зона перепроданности"
+    )
 
-async def main():
-    # Long polling
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+if name == "main":
+    executor.start_polling(dp, skip_updates=True)
